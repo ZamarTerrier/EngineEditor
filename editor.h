@@ -2,7 +2,7 @@
 #define EDITOR_H
 
 void Init();
-void Update();
+void Update(float delta_time);
 void Draw();
 void Clean();
 
