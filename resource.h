@@ -16,4 +16,7 @@ extern bool editor_focus;
 
 extern char path[];
 
+extern float yaw;
+extern float pitch;
+
 #endif // RESOURCE_H

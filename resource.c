@@ -10,4 +10,7 @@ int curr_object = -1;
 
 bool editor_focus = false;
 
+float yaw = 90.f;
+float pitch = 0;
+
 char path[] = "/home/ilia/Projects/EngineEditor/";

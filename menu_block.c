@@ -88,19 +88,19 @@ void MakeObject(EWidget *widget, void *entry, int id)
     PrimitiveObjectInit(objects[num_objects - 1], dParam, type, some_params);
 
 
-    vec3 dir = v3_sub(getViewPos(), Transform3DGetPosition(objects[num_objects - 1]));
-    dir = v3_norm(dir);
-    setViewRotation(dir.x * 180, dir.y * 180, dir.z * 180);
+    vec3 dir = v3_norm(getViewRotation());
+    vec3 pos = v3_add(getViewPos(), v3_muls(dir, -5));
 
     curr_object = num_objects - 1;
 
     vec3 null_vector = { 0, 0, 0};
     vec3 eden_vector = { 1, 1, 1};
-    TransformWindowSetValues(null_vector, null_vector, eden_vector);
+    TransformWindowSetValues(pos, null_vector, eden_vector);
 }
 
 void MenuBlockFocus()
 {
+    EngineFixedCursorCenter();
     EngineHideCursor(1);
     editor_focus = true;
 }
@@ -117,9 +117,8 @@ void MenuBlockInit()
     EWidgetButton *button;
 
     TopMenuWidgetInit(&menu, NULL);
-    WidgetConnect(&menu.widget, GUI_TRIGGER_WIDGET_FOCUS, MenuBlockFocus, NULL);
     WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_PRESS, MenuBlockFocus, NULL);
-    WidgetConnect(&menu.widget, GUI_TRIGGER_WIDGET_UNFOCUS, MenuBlockUnFocus, NULL);
+    WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_RELEASE, MenuBlockUnFocus, NULL);
     int num = TopMenuWidgetAddMenu(&menu, "Файл");
     TopMenuWidgetAddItem(&menu, num, "Открыть");
     TopMenuWidgetAddItem(&menu, num, "Закрыть");

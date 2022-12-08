@@ -18,8 +18,6 @@ Camera3D camera;
 
 ModelObject3D axis_model;
 
-float yaw = 90.f;
-float pitch = 0;
 
 float lastX = 0, lastY = 0;
 float startX, startY;
@@ -117,7 +115,9 @@ void Init()
     ToolsAddStrings(dParam.diffuse, 256, path, "textures/texture.jpg");
     Load3DglTFModel(&axis_model, filePath, "Axis_Model", 2, &dParam);
     Transform3DSetRotateT(&axis_model.transform, 0, 0, -90);
-    Transform3DSetScaleT(&axis_model.transform, -0.002f, 0.002f, -0.002f);
+    Transform3DSetScaleT(&axis_model.transform, 0.002f, 0.002f, 0.002f);
+    Transform3DSetPositionT(&axis_model.transform, -0.7f, -0.5f, 1.5f);
+    ModelSetSelCameraEnable(&axis_model, true);
 
     EngineSetRecreateFunc((void *)Resize);
 
@@ -132,11 +132,9 @@ void Update(float delta_time)
     CamRotateView(delta_time);
     KeyUpdateInput(delta_time);
 
-    vec3 cam_pos = getViewPos();
-    vec3 cam_dir = v3_norm(getViewRotation());
-    vec3 m_axis = {0, cam_dir.y, 5};
-    vec3 result_pos = v3_add(cam_pos, v3_muls(cam_dir, -1));
-    Transform3DSetPositionT(&axis_model.transform, result_pos.x, result_pos.y, result_pos.z);
+    vec3 up = {0.0f,1.0f,0.0f};
+    vec3 cam_dir = v3_muls(v3_norm(getViewRotation()), -180);
+    Transform3DSetRotateT(&axis_model.transform, 0, yaw - 150, pitch);
 }
 
 void Draw()
@@ -154,9 +152,10 @@ void Draw()
         EngineDraw(objects[i]);
     }
 
+    GUI_Draw();
+
     EngineDraw(&axis_model);
 
-    GUI_Draw();
 }
 
 void Clean()
