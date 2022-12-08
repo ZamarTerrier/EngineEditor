@@ -123,6 +123,11 @@ void Init()
 
     GUI_Init();
 
+    vec3 direction; //= getViewRotation();
+    direction.x = cos(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
+    direction.y = -sin(pitch * (M_PI / 180));
+    direction.z = sin(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
+    setViewRotation(direction.x, direction.y, direction.z);
 }
 
 void Update(float delta_time)

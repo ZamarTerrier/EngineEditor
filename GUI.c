@@ -14,6 +14,8 @@
 void GUI_Resize()
 {
     MenuBlockResize();
+    TransformWindowResize();
+    ListWindowResize();
 }
 
 void GUI_Init()

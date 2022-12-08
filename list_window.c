@@ -18,6 +18,12 @@ void ListWindowClickList(EWidget *widget, int id, void *arg)
     curr_object = id;
 }
 
+void ListWindowResize()
+{
+    Transform2DSetPosition(&list_window.top, (WIDTH * 2) - 200, 970);
+    WidgetRecreate(&list_window.top);
+}
+
 void ListWindowInit()
 {
     vec2 size = { 100, 300};

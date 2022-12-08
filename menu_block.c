@@ -31,6 +31,7 @@ void ShowListMenu(EWidget *widget, void *entry, void *args)
 void MenuBlockResize()
 {
     TopMenuWidgetResize(&menu);
+    WidgetRecreate(&menu.widget);
 }
 
 void MakeObject(EWidget *widget, void *entry, int id)
