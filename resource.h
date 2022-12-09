@@ -6,6 +6,7 @@
 
 extern EWidgetWindow transform_window;
 extern EWidgetWindow list_window;
+extern EWidgetWindow explorer_window;
 
 extern void **objects;
 extern uint32_t num_objects;

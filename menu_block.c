@@ -28,6 +28,11 @@ void ShowListMenu(EWidget *widget, void *entry, void *args)
     WindowWidgetShow(&list_window);
 }
 
+void ShowExploer(EWidget *widget, void *entry, void *args)
+{
+    WindowWidgetShow(&explorer_window);
+}
+
 void MenuBlockResize()
 {
     TopMenuWidgetResize(&menu);
@@ -121,9 +126,16 @@ void MenuBlockInit()
     WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_PRESS, MenuBlockFocus, NULL);
     WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_RELEASE, MenuBlockUnFocus, NULL);
     int num = TopMenuWidgetAddMenu(&menu, "Файл");
-    TopMenuWidgetAddItem(&menu, num, "Открыть");
+    button = TopMenuWidgetAddItem(&menu, num, "Открыть");
+    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, ShowExploer, NULL);
     TopMenuWidgetAddItem(&menu, num, "Закрыть");
     TopMenuWidgetAddItem(&menu, num, "Запилить");
+    TopMenuWidgetAddItem(&menu, num, "Выход");
+
+    num = TopMenuWidgetAddMenu(&menu, "Настройки");
+    TopMenuWidgetAddItem(&menu, num, "Отменить");
+    TopMenuWidgetAddItem(&menu, num, "Повторить");
+    TopMenuWidgetAddItem(&menu, num, "Параметры");
 
     num = TopMenuWidgetAddMenu(&menu, "Добавить");
     button = TopMenuWidgetAddItem(&menu, num, "Квадрат");
