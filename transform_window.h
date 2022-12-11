@@ -8,6 +8,7 @@ void TransformWindowUpdate(float delta_time);
 void TransformWindowDraw();
 void TransformWindowDestroy();
 
+void TransformWindowResize();
 void TransformWindowSetValues(vec3 position, vec3 rotation, vec3 scale);
 
 #endif // TRANSFORM_WINDOW_H

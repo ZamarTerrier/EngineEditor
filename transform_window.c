@@ -99,8 +99,15 @@ void MoveToTarget(EWidget *widget, void *entry, void *args)
     vec3 dir = v3_sub(getViewPos(), Transform3DGetPosition(objects[curr_object]));
     dir = v3_norm(dir);
     setViewRotation(dir.x * 180, dir.y * 180, dir.z * 180);
+    yaw = (dir.y * 180) + 120;
+    pitch = (dir.z * 180) + 70;
 }
 
+void TransformWindowResize()
+{
+    Transform2DSetPosition(&transform_window.top, (WIDTH * 2) - 260, 60);
+    WidgetRecreate(&transform_window.top);
+}
 
 void TransformWindowInit()
 {
