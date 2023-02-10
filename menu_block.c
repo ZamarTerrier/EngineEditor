@@ -1,22 +1,75 @@
 #include "menu_block.h"
 
-#include "engine.h"
+#include <engine.h>
+
+#include "console.h"
 
 #include "transform_window.h"
+#include "file_explorer.h"
 
-#include "e_widget.h"
-#include "e_widget_window.h"
-#include "e_widget_top_menu.h"
+#include <e_widget.h>
+#include <e_widget_window.h>
+#include <e_widget_top_menu.h>
 
-#include "primitiveObject.h"
+#include <primitiveObject.h>
 
-#include "camera.h"
+#include <camera.h>
 
-#include "e_math.h"
+#include <e_math.h>
 
-#include "resource.h"
+#include <resource.h>
 
 EWidgetTopMenu menu;
+
+void SaveFileFunc(const char* name)
+{
+
+    FILE *file = fopen(name, "w");
+
+    char str_err[1024];
+
+    if(!file){
+        ConsoleInputText("Ошибка записи файла: Ошибка открытия файла!\n");
+        return;
+    }
+
+    char *temp = "Hello world!";
+
+    fwrite(temp, sizeof(char), strlen(temp), file);
+
+    fclose(file);
+
+    return;
+}
+
+void OpenFileFunc(const char* name)
+{
+
+    if(strlen(name) == 0)
+    {
+        ConsoleInputText("Ошибка чтения файла : Нет имени!\n");
+        return;
+    }
+
+
+    char buff[256];
+
+    FILE *file = fopen(name, "r");
+
+    char str_err[1024];
+
+    if(!file){
+        sprintf(str_err, "Ошибка чтения файла : Ошибка открытия файла \"%s\" !\n", name);
+        ConsoleInputText(str_err);
+        return;
+    }
+
+    fread(buff, sizeof(char), 256, file);
+
+    fclose(file);
+
+    return;
+}
 
 void ShowTransformMenu(EWidget *widget, void *entry, void *args)
 {
@@ -28,8 +81,15 @@ void ShowListMenu(EWidget *widget, void *entry, void *args)
     WindowWidgetShow(&list_window);
 }
 
-void ShowExploer(EWidget *widget, void *entry, void *args)
+void ShowExploerSave(EWidget *widget, void *entry, void *args)
 {
+    FileExplorerSetCallback((void *)SaveFileFunc);
+    WindowWidgetShow(&explorer_window);
+}
+
+void ShowExploerOpen(EWidget *widget, void *entry, void *args)
+{
+    FileExplorerSetCallback((void *)OpenFileFunc);
     WindowWidgetShow(&explorer_window);
 }
 
@@ -127,8 +187,10 @@ void MenuBlockInit()
     WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_RELEASE, MenuBlockUnFocus, NULL);
     int num = TopMenuWidgetAddMenu(&menu, "Файл");
     button = TopMenuWidgetAddItem(&menu, num, "Открыть");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, ShowExploer, NULL);
-    TopMenuWidgetAddItem(&menu, num, "Закрыть");
+    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, ShowExploerOpen, NULL);
+    TopMenuWidgetAddItem(&menu, num, "Сохранить");
+    button = TopMenuWidgetAddItem(&menu, num, "Сохранить как");
+    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, ShowExploerSave, NULL);
     TopMenuWidgetAddItem(&menu, num, "Запилить");
     TopMenuWidgetAddItem(&menu, num, "Выход");
 
