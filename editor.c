@@ -111,8 +111,8 @@ void Init()
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
     char filePath[256];
-    ToolsAddStrings(filePath, 256, path, "models/");
-    ToolsAddStrings(dParam.diffuse, 256, path, "textures/texture.jpg");
+    ToolsAddStrings(filePath, 256, editor_path, "models/");
+    ToolsAddStrings(dParam.diffuse, 256, editor_path, "textures/texture.jpg");
     Load3DglTFModel(&axis_model, filePath, "Axis_Model", 2, &dParam);
     Transform3DSetRotateT(&axis_model.transform, 0, 0, -90);
     Transform3DSetScaleT(&axis_model.transform, 0.002f, 0.002f, 0.002f);

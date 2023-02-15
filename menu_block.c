@@ -149,7 +149,7 @@ void MakeObject(EWidget *widget, void *entry, int id)
 
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
-    ToolsAddStrings(dParam.diffuse, 256, path, "textures/texture.png");
+    ToolsAddStrings(dParam.diffuse, 256, editor_path, "textures/texture.png");
     objects[num_objects - 1] = calloc(1, sizeof(PrimitiveObject));
     PrimitiveObjectInit(objects[num_objects - 1], dParam, type, some_params);
 

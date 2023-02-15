@@ -28,7 +28,7 @@ void ConsoleInit()
     area.entry.height = size.y - 10;
     area.entry.width = size.x * 1.5f;
 
-    area.entry.widget.active = false;
+    area.entry.widget.widget_flags = ENGINE_FLAG_WIDGET_ACTIVE;
 }
 
 void ConsoleUpdate(float delta_time)

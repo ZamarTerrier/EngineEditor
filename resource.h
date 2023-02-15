@@ -16,7 +16,7 @@ extern int curr_object;
 
 extern bool editor_focus;
 
-extern char path[];
+extern char editor_path[];
 
 extern float yaw;
 extern float pitch;
