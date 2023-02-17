@@ -1,39 +1,87 @@
 #include "menu_block.h"
 
-#include "engine.h"
+#include <engine.h>
+
+#include "console.h"
 
 #include "transform_window.h"
+#include "file_explorer.h"
 
-#include "e_widget.h"
-#include "e_widget_window.h"
-#include "e_widget_top_menu.h"
+#include <e_widget.h>
+#include <e_widget_window.h>
+#include <e_widget_top_menu.h>
 
-#include "primitiveObject.h"
+#include <primitiveObject.h>
 
-#include "camera.h"
+#include <camera.h>
 
-#include "e_math.h"
+#include <e_math.h>
 
-#include "resource.h"
+#include <resource.h>
 
 EWidgetTopMenu menu;
 
-void ShowTransformMenu(EWidget *widget, void *entry, void *args)
+void SaveFileFunc(const char* name)
+{
+
+    FILE *file = fopen(name, "w");
+
+    char str_err[1024];
+
+    if(!file){
+        ConsoleInputText("Ошибка записи файла: Ошибка открытия файла!\n");
+        return;
+    }
+
+    char *temp = "Hello world!";
+
+    fwrite(temp, sizeof(char), strlen(temp), file);
+
+    fclose(file);
+
+    return;
+}
+
+void OpenFileFunc(const char* name)
+{
+
+    if(strlen(name) == 0)
+    {
+        ConsoleInputText("Ошибка чтения файла : Нет имени!\n");
+        return;
+    }
+
+
+    char buff[256];
+
+    FILE *file = fopen(name, "r");
+
+    char str_err[1024];
+
+    if(!file){
+        sprintf(str_err, "Ошибка чтения файла : Ошибка открытия файла \"%s\" !\n", name);
+        ConsoleInputText(str_err);
+        return;
+    }
+
+    fread(buff, sizeof(char), 256, file);
+
+    fclose(file);
+
+    return;
+}
+
+void ShowTransformMenu(EWidget *widget, int id, void *args)
 {
     WindowWidgetShow(&transform_window);
 }
 
-void ShowListMenu(EWidget *widget, void *entry, void *args)
+void ShowListMenu(EWidget *widget, int id, void *args)
 {
     WindowWidgetShow(&list_window);
 }
 
-void MenuBlockResize()
-{
-    TopMenuWidgetResize(&menu);
-}
-
-void MakeObject(EWidget *widget, void *entry, int id)
+void MakeObject(int id)
 {
 
     char type;
@@ -83,10 +131,12 @@ void MakeObject(EWidget *widget, void *entry, int id)
 
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
-    ToolsAddStrings(dParam.diffuse, 256, path, "textures/texture.png");
+    ToolsAddStrings(dParam.diffuse, 256, editor_path, "textures/texture.png");
     objects[num_objects - 1] = calloc(1, sizeof(PrimitiveObject));
     PrimitiveObjectInit(objects[num_objects - 1], dParam, type, some_params);
 
+    GameObject3D *some_obj = objects[num_objects - 1];
+    some_obj->wired = true;
 
     vec3 dir = v3_norm(getViewRotation());
     vec3 pos = v3_add(getViewPos(), v3_muls(dir, -5));
@@ -96,6 +146,49 @@ void MakeObject(EWidget *widget, void *entry, int id)
     vec3 null_vector = { 0, 0, 0};
     vec3 eden_vector = { 1, 1, 1};
     TransformWindowSetValues(pos, null_vector, eden_vector);
+}
+
+int ExplorerMenuSomeDo(EWidget *widget, MenuData *data, void *args)
+{
+    if(data->num_menu == 0)
+    {
+        switch(data->elem_id)
+        {
+                //Открыть
+            case 0:
+                FileExplorerSetCallback((void *)OpenFileFunc);
+                WindowWidgetShow(&explorer_window);
+                break;
+                //Сохранить как
+            case 2:
+                FileExplorerSetCallback((void *)SaveFileFunc);
+                WindowWidgetShow(&explorer_window);
+                break;
+        }
+    }else if(data->num_menu == 2)
+        MakeObject(data->elem_id);
+    else if(data->num_menu == 3)
+    {
+        switch(data->elem_id)
+        {
+                //Окно трансформации
+            case 0:
+                WindowWidgetShow(&transform_window);
+                break;
+                //Окно элементов
+            case 1:
+                WindowWidgetShow(&list_window);
+                break;
+        }
+    }
+
+    return 0;
+}
+
+void MenuBlockResize()
+{
+    TopMenuWidgetResize(&menu);
+    WidgetRecreate(&menu.widget);
 }
 
 void MenuBlockFocus()
@@ -114,33 +207,32 @@ void MenuBlockUnFocus()
 
 void MenuBlockInit()
 {
-    EWidgetButton *button;
-
     TopMenuWidgetInit(&menu, NULL);
     WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_PRESS, MenuBlockFocus, NULL);
     WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_RELEASE, MenuBlockUnFocus, NULL);
     int num = TopMenuWidgetAddMenu(&menu, "Файл");
+    WidgetConnect(&menu, GUI_TRIGGER_MENU_PRESS_ITEM, ExplorerMenuSomeDo, NULL);
     TopMenuWidgetAddItem(&menu, num, "Открыть");
-    TopMenuWidgetAddItem(&menu, num, "Закрыть");
+    TopMenuWidgetAddItem(&menu, num, "Сохранить");
+    TopMenuWidgetAddItem(&menu, num, "Сохранить как");
     TopMenuWidgetAddItem(&menu, num, "Запилить");
+    TopMenuWidgetAddItem(&menu, num, "Выход");
+
+    num = TopMenuWidgetAddMenu(&menu, "Настройки");
+    TopMenuWidgetAddItem(&menu, num, "Отменить");
+    TopMenuWidgetAddItem(&menu, num, "Повторить");
+    TopMenuWidgetAddItem(&menu, num, "Параметры");
 
     num = TopMenuWidgetAddMenu(&menu, "Добавить");
-    button = TopMenuWidgetAddItem(&menu, num, "Квадрат");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, MakeObject, 0);
-    button = TopMenuWidgetAddItem(&menu, num, "Куб");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, MakeObject, 1);
-    button = TopMenuWidgetAddItem(&menu, num, "Сфера");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, MakeObject, 2);
-    button = TopMenuWidgetAddItem(&menu, num, "Плоскость");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, MakeObject, 3);
-    button = TopMenuWidgetAddItem(&menu, num, "Местность");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, MakeObject, 4);
+    TopMenuWidgetAddItem(&menu, num, "Квадрат");
+    TopMenuWidgetAddItem(&menu, num, "Куб");
+    TopMenuWidgetAddItem(&menu, num, "Сфера");
+    TopMenuWidgetAddItem(&menu, num, "Плоскость");
+    TopMenuWidgetAddItem(&menu, num, "Местность");
 
     num = TopMenuWidgetAddMenu(&menu, "Окна");
-    button = TopMenuWidgetAddItem(&menu, num, "Объект");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, ShowTransformMenu, NULL);
-    button = TopMenuWidgetAddItem(&menu, num, "Список");
-    WidgetConnect(button, GUI_TRIGGER_BUTTON_PRESS, ShowListMenu, NULL);
+    TopMenuWidgetAddItem(&menu, num, "Объект");
+    TopMenuWidgetAddItem(&menu, num, "Список");
 }
 
 void MenuBlockUpdate(float delta_time)

@@ -6,6 +6,8 @@
 
 extern EWidgetWindow transform_window;
 extern EWidgetWindow list_window;
+extern EWidgetWindow explorer_window;
+extern EWidgetWindow console_window;
 
 extern void **objects;
 extern uint32_t num_objects;
@@ -14,7 +16,7 @@ extern int curr_object;
 
 extern bool editor_focus;
 
-extern char path[];
+extern char editor_path[];
 
 extern float yaw;
 extern float pitch;

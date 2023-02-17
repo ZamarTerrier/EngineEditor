@@ -111,8 +111,8 @@ void Init()
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
     char filePath[256];
-    ToolsAddStrings(filePath, 256, path, "models/");
-    ToolsAddStrings(dParam.diffuse, 256, path, "textures/texture.jpg");
+    ToolsAddStrings(filePath, 256, editor_path, "models/");
+    ToolsAddStrings(dParam.diffuse, 256, editor_path, "textures/texture.jpg");
     Load3DglTFModel(&axis_model, filePath, "Axis_Model", 2, &dParam);
     Transform3DSetRotateT(&axis_model.transform, 0, 0, -90);
     Transform3DSetScaleT(&axis_model.transform, 0.002f, 0.002f, 0.002f);
@@ -123,6 +123,11 @@ void Init()
 
     GUI_Init();
 
+    vec3 direction; //= getViewRotation();
+    direction.x = cos(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
+    direction.y = -sin(pitch * (M_PI / 180));
+    direction.z = sin(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
+    setViewRotation(direction.x, direction.y, direction.z);
 }
 
 void Update(float delta_time)

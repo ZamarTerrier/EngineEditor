@@ -103,6 +103,11 @@ void MoveToTarget(EWidget *widget, void *entry, void *args)
     pitch = (dir.z * 180) + 70;
 }
 
+void TransformWindowResize()
+{
+    Transform2DSetPosition(&transform_window.top, (WIDTH * 2) - 260, 60);
+    WidgetRecreate(&transform_window.top);
+}
 
 void TransformWindowInit()
 {
