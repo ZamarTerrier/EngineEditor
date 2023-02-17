@@ -27,12 +27,14 @@ typedef struct{
 EWidgetList list_files;
 EWidgetEntry name_entry, name_path;
 EWidgetText path_label1, name_label;
-EWidgetButton cancel_button, accept_button, go_path_button;
+EWidgetButton cancel_button, accept_button, go_path_button, up_folder;
 EWidgetScroll files_scroll;
 
 callback_name c_funk;
 
 path_struct my_path;
+
+int clean_list = 0;
 
 char some_dir[] = "/home/ilia/";
 
@@ -101,7 +103,7 @@ void FileExplorertWindowResize()
     WidgetRecreate(&explorer_window.top);
 }
 
-void FileExplorerAccept(EWidget *widget, void *entry, void *arg)
+int FileExplorerAccept(EWidget *widget, void *entry, void *arg)
 {
     if(c_funk == NULL)
         return;
@@ -114,6 +116,7 @@ void FileExplorerAccept(EWidget *widget, void *entry, void *arg)
 
     ParceStructToPath(curr_dir, 1024, &my_path);
 
+    ToolsAddStrings(curr_dir, 2048, curr_dir, "/");
     ToolsAddStrings(temp, 2048, curr_dir, EntryWidgetGetText(&name_entry));
 
     if(opendir(temp) != 0)
@@ -127,15 +130,19 @@ void FileExplorerAccept(EWidget *widget, void *entry, void *arg)
     EntryWidgetSetText(&name_entry, "");
 
     WindowWidgetHide(&explorer_window);
+
+    return 0;
 }
 
-void FileExplorerClose(EWidget *widget, void *entry, void *arg)
+int FileExplorerClose(EWidget *widget, void *entry, void *arg)
 {
     c_funk = NULL;
 
     EntryWidgetSetText(&name_entry, "");
 
     WindowWidgetHide(&explorer_window);
+
+    return 0;
 }
 
 void FileExplorerSetCallback(callback_name some_funk)
@@ -143,18 +150,24 @@ void FileExplorerSetCallback(callback_name some_funk)
     c_funk = some_funk;
 }
 
-void SomeExplober(EWidget* widget, float *valu, EWidgetList *list)
+int SomeExplober(EWidget* widget, float *valu, EWidgetList *list)
 {
     float size = list->size * list->size_y * 2 - 560;
 
     float result = size * *valu;
 
     Transform2DSetPosition(list, 0, 0 - result);
+
+    return 0;
 }
 
-void FileWasSellected(EWidget* widget, int id, EWidgetEntry *line)
+int FileWasSellected(EWidget* widget, int id, EWidgetEntry *line)
 {
-    EWidgetButton *button = widget;
+    EWidgetList *some_list = widget;
+
+    ChildStack *child = WidgetFindChild(some_list, id);
+
+    EWidgetButton *button = child->node;
 
     char buff[256];
 
@@ -171,14 +184,10 @@ void FileWasSellected(EWidget* widget, int id, EWidgetEntry *line)
 
     if(dir)
     {
-
         closedir(dir);
 
-        int count = list_files.size;
-        while(list_files.size > 0){
-            count = list_files.size;
+        while(list_files.size > 0)
             ListWidgetRemoveItem(&list_files, list_files.size - 1);
-        }
 
         ParcePathForStruct(temp, &my_path);
 
@@ -186,13 +195,14 @@ void FileWasSellected(EWidget* widget, int id, EWidgetEntry *line)
 
         EntryWidgetSetText(&name_path, temp);
 
-
-        return;
+        return -1;
     }
 
     closedir(dir);
 
     EntryWidgetSetText(line, buff);
+
+    return 0;
 }
 
 void FillListCurrPath(char *path, EWidgetList *list)
@@ -226,19 +236,18 @@ void FillListCurrPath(char *path, EWidgetList *list)
         else
             ToolsAddStrings(temp, 1024, editor_path, "textures/folder.png");
 
-        //ButtonWidgetSetImage(some_button, temp);
-        WidgetConnect(some_button, GUI_TRIGGER_BUTTON_PRESS, FileWasSellected, &name_entry);
+        ButtonWidgetSetImage(some_button, temp);
     }
 
     closedir(dir);
+
+    ScrollWidgetUpdate(&files_scroll, &list_files);
 }
 
-void LetsGoToPath(EWidget* widget, void *entry, void *arg)
+int LetsGoToPath(EWidget* widget, void *entry, void *arg)
 {
 
-    int count = list_files.size;
     while(list_files.size > 0){
-        count = list_files.size;
         ListWidgetRemoveItem(&list_files, list_files.size - 1);
     }
 
@@ -259,24 +268,98 @@ void LetsGoToPath(EWidget* widget, void *entry, void *arg)
     ParcePathForStruct(pather, &my_path);
 
     FillListCurrPath(pather, &list_files);
+
+    return 0;
+}
+
+int FileExplorerOnOpen(EWidget* widget, void *entry, void *arg)
+{
+    char path[2048];
+    memset(path, 0, 2048);
+
+    while(list_files.size > 0){
+        ListWidgetRemoveItem(&list_files, list_files.size - 1);
+    }
+
+    ParceStructToPath(path, 2048, &my_path);
+
+    EntryWidgetSetText(&name_path, path);
+
+    FillListCurrPath(path, &list_files);
+
+    return 0;
+}
+
+int FileExplorerOnClose(EWidget* widget, void *entry, void *arg)
+{
+
+    while(list_files.size > 0){
+        ListWidgetRemoveItem(&list_files, list_files.size - 1);
+    }
+
+    EntryWidgetSetText(&name_path, "");
+
+    EntryWidgetSetText(&name_entry, "");
+
+    return 0;
+}
+
+int FileExplorerUpFolder(EWidget *widget, void *entry, void *arg)
+{
+
+    if(my_path.size <= 1)
+    {
+        ConsoleInputText("Ошибка : Это корневое расположение в файловой системе!\n");
+        return 0;
+    }
+
+    while(list_files.size > 0){
+        ListWidgetRemoveItem(&list_files, list_files.size - 1);
+    }
+
+    memset(my_path.path[my_path.size - 1], 0, 256);
+    my_path.size --;
+
+    char path[2048];
+
+    ParceStructToPath(path, 2048, &my_path);
+
+    EntryWidgetSetText(&name_path, path);
+
+    FillListCurrPath(path, &list_files);
+
+    return 0;
 }
 
 void FileExplorerWindowInit()
 {
+
+    char temp[2048];
 
     vec2 size = { 600, 400};
     vec2 position = {100, 100};
     WindowWidgetInit(&explorer_window, "Проводник", size, NULL, position);
     explorer_window.resizeble = false;
     WindowWidgetHide(&explorer_window);
+    WidgetConnect(&explorer_window, GUI_TRIGGER_WINDOW_OPEN, FileExplorerOnOpen, NULL);
+    WidgetConnect(&explorer_window, GUI_TRIGGER_WINDOW_CLOSE, FileExplorerOnClose, NULL);
+
+    ToolsAddStrings(temp, 1024, editor_path, "textures/folder_up.png");
+    ButtonWidgetInit(&up_folder, "", &explorer_window);
+    Transform2DSetScale(&up_folder, 30, 25);
+    ButtonWidgetSetImage(&up_folder, temp);
+    WidgetConnect(&up_folder, GUI_TRIGGER_BUTTON_PRESS, FileExplorerUpFolder, NULL);
+    ButtonWidgetSetColor(&up_folder, 0.35f, 0.35f, 0.35f);
+    up_folder.widget.color.y = 0.35f;
+    up_folder.widget.color.z = 0.35f;
 
     TextWidgetInit(&path_label1, 9, NULL, &explorer_window);
     TextWidgetSetText(&path_label1, "Расположение :");
-    Transform2DSetPosition(&path_label1, 10, 40);
+    Transform2DSetPosition(&path_label1, 70, 40);
 
     EntryWidgetInit(&name_path, 9, &explorer_window);
-    Transform2DSetScale(&name_path, size.x - 240, 20);
-    Transform2DSetPosition(&name_path, 250, 8);
+    Transform2DSetScale(&name_path, size.x - 300, 20);
+    Transform2DSetPosition(&name_path, 320, 8);
     EntryWidgetSetText(&name_path, some_dir);
 
     ButtonWidgetInit(&go_path_button, "Перейти", &explorer_window);
@@ -286,8 +369,10 @@ void FileExplorerWindowInit()
 
     ScrollWidgetInit(&files_scroll, size.x, size.y - 120, NULL, &explorer_window);
     Transform2DSetPosition(&files_scroll, 0, 60);
+    WidgetConnect(&files_scroll, GUI_TRIGGER_SCROLL_CHANGE, SomeExplober, &list_files);
 
     ListWidgetInit(&list_files, size.x - 20, 30, &files_scroll);
+    WidgetConnect(&list_files, GUI_TRIGGER_LIST_PRESS_ITEM, FileWasSellected, &name_entry);
 
     TextWidgetInit(&name_label, 9, NULL, &explorer_window);
     TextWidgetSetText(&name_label, "Имя файла :");
@@ -309,17 +394,12 @@ void FileExplorerWindowInit()
 
     ParcePathForStruct(some_dir, &my_path);
 
-    FillListCurrPath(some_dir, &list_files);
-
-    WidgetConnect(&files_scroll, GUI_TRIGGER_SCROLL_CHANGE, SomeExplober, &list_files);
-
     ScrollWidgetUpdate(&files_scroll, &list_files);
 }
 
 void FileExplorerWindowUpdate(float delta_time)
 {
     WindowWidgetUpdate(&explorer_window);
-
 }
 
 void FileExplorerWindowDraw()
