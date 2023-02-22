@@ -341,14 +341,14 @@ void FileExplorerWindowInit()
     WindowWidgetInit(&explorer_window, "Проводник", size, NULL, position);
     explorer_window.resizeble = false;
     WindowWidgetHide(&explorer_window);
-    WidgetConnect(&explorer_window, GUI_TRIGGER_WINDOW_OPEN, FileExplorerOnOpen, NULL);
-    WidgetConnect(&explorer_window, GUI_TRIGGER_WINDOW_CLOSE, FileExplorerOnClose, NULL);
+    WidgetConnect(&explorer_window, ENGINE_WIDGET_TRIGGER_WINDOW_OPEN, FileExplorerOnOpen, NULL);
+    WidgetConnect(&explorer_window, ENGINE_WIDGET_TRIGGER_WINDOW_CLOSE, FileExplorerOnClose, NULL);
 
     ToolsAddStrings(temp, 1024, editor_path, "textures/folder_up.png");
     ButtonWidgetInit(&up_folder, "", &explorer_window);
     Transform2DSetScale(&up_folder, 30, 25);
     ButtonWidgetSetImage(&up_folder, temp);
-    WidgetConnect(&up_folder, GUI_TRIGGER_BUTTON_PRESS, FileExplorerUpFolder, NULL);
+    WidgetConnect(&up_folder, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, FileExplorerUpFolder, NULL);
     ButtonWidgetSetColor(&up_folder, 0.35f, 0.35f, 0.35f);
     up_folder.widget.color.y = 0.35f;
     up_folder.widget.color.z = 0.35f;
@@ -365,14 +365,14 @@ void FileExplorerWindowInit()
     ButtonWidgetInit(&go_path_button, "Перейти", &explorer_window);
     Transform2DSetScale(&go_path_button, 90, 24);
     Transform2DSetPosition(&go_path_button, (size.x - 100) * 2, 5);
-    WidgetConnect(&go_path_button, GUI_TRIGGER_BUTTON_PRESS, LetsGoToPath, NULL);
+    WidgetConnect(&go_path_button, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, LetsGoToPath, NULL);
 
     ScrollWidgetInit(&files_scroll, size.x, size.y - 120, NULL, &explorer_window);
     Transform2DSetPosition(&files_scroll, 0, 60);
-    WidgetConnect(&files_scroll, GUI_TRIGGER_SCROLL_CHANGE, SomeExplober, &list_files);
+    WidgetConnect(&files_scroll, ENGINE_WIDGET_TRIGGER_SCROLL_CHANGE, SomeExplober, &list_files);
 
     ListWidgetInit(&list_files, size.x - 20, 30, &files_scroll);
-    WidgetConnect(&list_files, GUI_TRIGGER_LIST_PRESS_ITEM, FileWasSellected, &name_entry);
+    WidgetConnect(&list_files, ENGINE_WIDGET_TRIGGER_LIST_PRESS_ITEM, FileWasSellected, &name_entry);
 
     TextWidgetInit(&name_label, 9, NULL, &explorer_window);
     TextWidgetSetText(&name_label, "Имя файла :");
@@ -385,12 +385,12 @@ void FileExplorerWindowInit()
     ButtonWidgetInit(&cancel_button, "Отмена", &explorer_window);
     Transform2DSetScale(&cancel_button, 70, 30);
     Transform2DSetPosition(&cancel_button, (size.x - 190) * 2, (size.y - 45) * 2);
-    WidgetConnect(&cancel_button, GUI_TRIGGER_BUTTON_PRESS, FileExplorerClose, NULL);
+    WidgetConnect(&cancel_button, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, FileExplorerClose, NULL);
 
     ButtonWidgetInit(&accept_button, "Применить", &explorer_window);
     Transform2DSetScale(&accept_button, 90, 30);
     Transform2DSetPosition(&accept_button, (size.x - 100) * 2, (size.y - 45) * 2);
-    WidgetConnect(&accept_button, GUI_TRIGGER_BUTTON_PRESS, FileExplorerAccept, NULL);
+    WidgetConnect(&accept_button, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, FileExplorerAccept, NULL);
 
     ParcePathForStruct(some_dir, &my_path);
 

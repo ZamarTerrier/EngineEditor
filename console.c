@@ -25,10 +25,18 @@ void ConsoleInit()
 
     EntryAreaWidgetInit(&area, 9, &console_window);
     Transform2DSetScale(&area, size.x, size.y - 10);
-    area.entry.height = size.y - 10;
+    area.entry.height = size.y - 10 * 1.5f;
     area.entry.width = size.x * 1.5f;
 
     area.entry.widget.widget_flags = ENGINE_FLAG_WIDGET_ACTIVE;
+
+    char buff[256];
+
+    for(int i=0;i < 50;i++)
+    {
+        sprintf(buff, "Тест %i\n", i);
+        //ConsoleInputText(buff);
+    }
 }
 
 void ConsoleUpdate(float delta_time)

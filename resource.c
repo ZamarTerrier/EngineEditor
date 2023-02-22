@@ -3,6 +3,7 @@
 EWidgetWindow transform_window;
 EWidgetWindow list_window;
 EWidgetWindow explorer_window;
+EWidgetWindow params_window;
 EWidgetWindow console_window;
 
 void **objects;
