@@ -208,10 +208,10 @@ void MenuBlockUnFocus()
 void MenuBlockInit()
 {
     TopMenuWidgetInit(&menu, NULL);
-    WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_PRESS, MenuBlockFocus, NULL);
-    WidgetConnect(&menu.widget, GUI_TRIGGER_MOUSE_RELEASE, MenuBlockUnFocus, NULL);
+    WidgetConnect(&menu.widget, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, MenuBlockFocus, NULL);
+    WidgetConnect(&menu.widget, ENGINE_WIDGET_TRIGGER_MOUSE_RELEASE, MenuBlockUnFocus, NULL);
     int num = TopMenuWidgetAddMenu(&menu, "Файл");
-    WidgetConnect(&menu, GUI_TRIGGER_MENU_PRESS_ITEM, ExplorerMenuSomeDo, NULL);
+    WidgetConnect(&menu, ENGINE_WIDGET_TRIGGER_MENU_PRESS_ITEM, ExplorerMenuSomeDo, NULL);
     TopMenuWidgetAddItem(&menu, num, "Открыть");
     TopMenuWidgetAddItem(&menu, num, "Сохранить");
     TopMenuWidgetAddItem(&menu, num, "Сохранить как");

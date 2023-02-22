@@ -4,6 +4,7 @@
 #include "transform_window.h"
 #include "list_window.h"
 #include "file_explorer.h"
+#include "params_window.h"
 #include "console.h"
 
 #include "camera.h"
@@ -18,6 +19,7 @@ void GUI_Resize()
     MenuBlockResize();
     TransformWindowResize();
     ListWindowResize();
+    ParamsWindowResize();
     FileExplorertWindowResize();
     ConsoleWindowResize();
 }
@@ -27,6 +29,7 @@ void GUI_Init()
     MenuBlockInit();
     ListWindowInit();
     TransformWindowInit();
+    ParamsWindowInit();
     FileExplorerWindowInit();
     ConsoleInit();
 
@@ -39,6 +42,7 @@ void GUI_Update(float delta_time)
     MenuBlockUpdate(delta_time);
     ListWindowUpdate(delta_time);
     TransformWindowUpdate(delta_time);
+    ParamsWindowUpdate();
     ConsoleUpdate(delta_time);
     FileExplorerWindowUpdate(delta_time);
 }
@@ -46,6 +50,7 @@ void GUI_Update(float delta_time)
 void GUI_Draw()
 {
     MenuBlockDraw();
+    ParamsWindowDraw();
     TransformWindowDraw();
     ListWindowDraw();
     FileExplorerWindowDraw();
@@ -58,5 +63,6 @@ void GUI_Destroy()
     ListWindowDestroy();
     TransformWindowDestroy();
     FileExplorerWindowDestroy();
+    ParamsWindowDestroy();
     ConsoleDestroy();
 }

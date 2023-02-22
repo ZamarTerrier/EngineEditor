@@ -1,18 +1,21 @@
 #include "editor.h"
 
-#include "engine.h"
-#include "gameObject.h"
-#include "gameObject3D.h"
-#include "models.h"
-#include "glTFLoader.h"
+#include <engine.h>
+#include <gameObject.h>
+#include <gameObject3D.h>
+#include <models.h>
+#include <glTFLoader.h>
+
+#include <camera.h>
+
+#include <e_math.h>
+
+#include <e_resource_data.h>
 
 #include "GUI.h"
 
-#include "camera.h"
 
 #include "resource.h"
-
-#include "e_math.h"
 
 Camera3D camera;
 

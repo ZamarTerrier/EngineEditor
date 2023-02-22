@@ -1,13 +1,15 @@
 
-#include "e_widget_window.h"
-#include "e_widget_combobox.h"
-#include "e_widget_roller.h"
-#include "e_widget_range.h"
-#include "e_widget_entry.h"
+#include <e_widget_window.h>
+#include <e_widget_combobox.h>
+#include <e_widget_roller.h>
+#include <e_widget_range.h>
+#include <e_widget_entry.h>
 
-#include "camera.h"
-\
-#include "e_math.h"
+#include <camera.h>
+
+#include <e_math.h>
+
+#include <e_resource_data.h>
 
 #include "resource.h"
 
@@ -78,7 +80,7 @@ void MakeEntryBlock(EWidgetEntry *entry, EWidgetText *label, EWidgetRoller *roll
     RollerWidgetSetSource(roller, source);
     Transform2DSetPosition(roller, x + 100, y);
     Transform2DSetScale(roller, 20, 20);
-    WidgetConnect(roller, GUI_TRIGGER_ROLLER_MOVE, TransformRollerMove, entry);
+    WidgetConnect(roller, ENGINE_WIDGET_TRIGGER_ROLLER_MOVE, TransformRollerMove, entry);
 
     TextWidgetInit( label, 9, NULL, &transform_window );
     Transform2DSetPosition( label, x - 40, y + 30);
@@ -119,7 +121,7 @@ void TransformWindowInit()
     ButtonWidgetInit(&move_to_object, "Переместиться", &transform_window);
     Transform2DSetScale(&move_to_object, 130, 30);
     Transform2DSetPosition(&move_to_object, 0, 0);
-    WidgetConnect(&move_to_object, GUI_TRIGGER_BUTTON_PRESS, MoveToTarget, NULL);
+    WidgetConnect(&move_to_object, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, MoveToTarget, NULL);
 
     TextWidgetInit(&label_rotation, 9, NULL, &transform_window);
     TextWidgetSetText(&label_rotation, "Поворот");
