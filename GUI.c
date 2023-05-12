@@ -7,7 +7,7 @@
 #include "params_window.h"
 #include "console.h"
 
-#include "camera.h"
+#include "e_camera.h"
 
 #include "e_math.h"
 
@@ -33,7 +33,7 @@ void GUI_Init()
     FileExplorerWindowInit();
     ConsoleInit();
 
-    setViewPos(-10, 10, -10);
+    Camera3DSetPosition(-10, 10, -10);
 }
 
 

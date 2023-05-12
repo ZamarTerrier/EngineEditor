@@ -13,7 +13,7 @@
 
 #include <primitiveObject.h>
 
-#include <camera.h>
+#include <e_camera.h>
 
 #include <e_math.h>
 
@@ -90,7 +90,6 @@ void MakeObject(int id)
 
     PlaneParam pParam;
     SphereParam sParam;
-    TerrainParam tParam;
 
     switch(id)
     {
@@ -114,11 +113,8 @@ void MakeObject(int id)
             some_params = &pParam;
             break;
         case 4:
-            type = ENGINE_PRIMITIVE3D_TERRAIN;
-            tParam.cell_step = 4;
-            tParam.colmns = 20;
-            tParam.rows = 20;
-            some_params = &tParam;
+            //NULL NULL
+            return;
             break;
         default:
             return;
@@ -131,15 +127,17 @@ void MakeObject(int id)
 
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
+    dParam.render = &render_window;
+
     ToolsAddStrings(dParam.diffuse, 256, editor_path, "textures/texture.png");
     objects[num_objects - 1] = calloc(1, sizeof(PrimitiveObject));
-    PrimitiveObjectInit(objects[num_objects - 1], dParam, type, some_params);
+    PrimitiveObjectInitDefault(objects[num_objects - 1], &dParam, type, some_params);
 
     GameObject3D *some_obj = objects[num_objects - 1];
-    some_obj->wired = true;
+    //some_obj->wired = true;
 
-    vec3 dir = v3_norm(getViewRotation());
-    vec3 pos = v3_add(getViewPos(), v3_muls(dir, -5));
+    vec3 dir = v3_norm(Camera3DGetRotation());
+    vec3 pos = v3_add(Camera3DGetPosition(), v3_muls(dir, -5));
 
     curr_object = num_objects - 1;
 
@@ -207,32 +205,37 @@ void MenuBlockUnFocus()
 
 void MenuBlockInit()
 {
-    TopMenuWidgetInit(&menu, NULL);
+
+    DrawParam dParam;
+    memset(&dParam, 0, sizeof(DrawParam));
+    dParam.render = &render_window;
+
+    TopMenuWidgetInit(&menu, &dParam, NULL);
     WidgetConnect(&menu.widget, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, MenuBlockFocus, NULL);
     WidgetConnect(&menu.widget, ENGINE_WIDGET_TRIGGER_MOUSE_RELEASE, MenuBlockUnFocus, NULL);
-    int num = TopMenuWidgetAddMenu(&menu, "Файл");
+    int num = TopMenuWidgetAddMenu(&menu, "Файл", &dParam);
     WidgetConnect(&menu, ENGINE_WIDGET_TRIGGER_MENU_PRESS_ITEM, ExplorerMenuSomeDo, NULL);
-    TopMenuWidgetAddItem(&menu, num, "Открыть");
-    TopMenuWidgetAddItem(&menu, num, "Сохранить");
-    TopMenuWidgetAddItem(&menu, num, "Сохранить как");
-    TopMenuWidgetAddItem(&menu, num, "Запилить");
-    TopMenuWidgetAddItem(&menu, num, "Выход");
+    TopMenuWidgetAddItem(&menu, num, "Открыть", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Сохранить", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Сохранить как", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Запилить", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Выход", &dParam);
 
-    num = TopMenuWidgetAddMenu(&menu, "Настройки");
-    TopMenuWidgetAddItem(&menu, num, "Отменить");
-    TopMenuWidgetAddItem(&menu, num, "Повторить");
-    TopMenuWidgetAddItem(&menu, num, "Параметры");
+    num = TopMenuWidgetAddMenu(&menu, "Настройки", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Отменить", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Повторить", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Параметры", &dParam);
 
-    num = TopMenuWidgetAddMenu(&menu, "Добавить");
-    TopMenuWidgetAddItem(&menu, num, "Квадрат");
-    TopMenuWidgetAddItem(&menu, num, "Куб");
-    TopMenuWidgetAddItem(&menu, num, "Сфера");
-    TopMenuWidgetAddItem(&menu, num, "Плоскость");
-    TopMenuWidgetAddItem(&menu, num, "Местность");
+    num = TopMenuWidgetAddMenu(&menu, "Добавить", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Квадрат", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Куб", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Сфера", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Плоскость", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Местность", &dParam);
 
-    num = TopMenuWidgetAddMenu(&menu, "Окна");
-    TopMenuWidgetAddItem(&menu, num, "Объект");
-    TopMenuWidgetAddItem(&menu, num, "Список");
+    num = TopMenuWidgetAddMenu(&menu, "Окна", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Объект", &dParam);
+    TopMenuWidgetAddItem(&menu, num, "Список", &dParam);
 }
 
 void MenuBlockUpdate(float delta_time)

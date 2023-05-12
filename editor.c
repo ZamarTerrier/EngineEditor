@@ -1,12 +1,13 @@
 #include "editor.h"
 
 #include <engine.h>
+#include <render_texture.h>
 #include <gameObject.h>
 #include <gameObject3D.h>
 #include <models.h>
 #include <glTFLoader.h>
 
-#include <camera.h>
+#include <e_camera.h>
 
 #include <e_math.h>
 
@@ -58,7 +59,7 @@ void CamRotateView(float deltaTime){
     direction.x = cos(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
     direction.y = -sin(pitch * (M_PI / 180));
     direction.z = sin(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
-    setViewRotation(direction.x, direction.y, direction.z);
+    Camera3DSetRotation(direction.x, direction.y, direction.z);
 }
 
 void KeyUpdateInput(float deltaTime)
@@ -68,25 +69,25 @@ void KeyUpdateInput(float deltaTime)
 
     vec3 up = {0.0f,1.0f,0.0f};
 
-    vec3 pos = getViewPos();
-    vec3 viewRot = getViewRotation();
+    vec3 pos = Camera3DGetPosition();
+    vec3 viewRot = Camera3DGetRotation();
 
     vec3 forward;
     if (EngineGetKeyPress(ENGINE_KEY_W))
     {
         forward = v3_sub(pos, v3_muls( viewRot, cameraSpeed * deltaTime));
-        setViewPos(forward.x, forward.y, forward.z);
+        Camera3DSetPosition(forward.x, forward.y, forward.z);
     }else if (EngineGetKeyPress(ENGINE_KEY_S)){
         forward = v3_add(pos, v3_muls( viewRot, cameraSpeed * deltaTime));
-        setViewPos(forward.x, forward.y, forward.z);
+        Camera3DSetPosition(forward.x, forward.y, forward.z);
     }
 
     if (EngineGetKeyPress(ENGINE_KEY_A)){
         forward = v3_sub(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cameraSpeed * deltaTime));
-        setViewPos(forward.x, forward.y, forward.z);
+        Camera3DSetPosition(forward.x, forward.y, forward.z);
     }else if (EngineGetKeyPress(ENGINE_KEY_D)){
         forward = v3_add(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cameraSpeed * deltaTime));
-        setViewPos(forward.x, forward.y, forward.z);
+        Camera3DSetPosition(forward.x, forward.y, forward.z);
     }
 
     if (EngineGetKeyPress(ENGINE_KEY_LEFT_SHIFT)){
@@ -111,8 +112,12 @@ void Init()
 {
     Camera3DInit(&camera);
 
+    RenderTextureInit(&render_window, ENGINE_RENDER_TYPE_WINDOW, 0, 0, 0);
+
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
+    dParam.render = &render_window;
+
     char filePath[256];
     ToolsAddStrings(filePath, 256, editor_path, "models/");
     ToolsAddStrings(dParam.diffuse, 256, editor_path, "textures/texture.jpg");
@@ -121,6 +126,8 @@ void Init()
     Transform3DSetScaleT(&axis_model.transform, 0.002f, 0.002f, 0.002f);
     Transform3DSetPositionT(&axis_model.transform, -0.7f, -0.5f, 1.5f);
     ModelSetSelCameraEnable(&axis_model, true);
+    ModelSetLightEnable(&axis_model, false);
+
 
     EngineSetRecreateFunc((void *)Resize);
 
@@ -130,7 +137,7 @@ void Init()
     direction.x = cos(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
     direction.y = -sin(pitch * (M_PI / 180));
     direction.z = sin(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
-    setViewRotation(direction.x, direction.y, direction.z);
+    Camera3DSetRotation(direction.x, direction.y, direction.z);
 }
 
 void Update(float delta_time)
@@ -141,7 +148,7 @@ void Update(float delta_time)
     KeyUpdateInput(delta_time);
 
     vec3 up = {0.0f,1.0f,0.0f};
-    vec3 cam_dir = v3_muls(v3_norm(getViewRotation()), -180);
+    vec3 cam_dir = v3_muls(v3_norm(Camera3DGetRotation()), -180);
     Transform3DSetRotateT(&axis_model.transform, 0, yaw - 150, pitch);
 }
 
@@ -151,10 +158,10 @@ void Draw()
     {
         GameObject3D *obj = objects[i];
 
-        if(i == curr_object)
+        /*if(i == curr_object)
             obj->wired = true;
         else
-            obj->wired = false;
+            obj->wired = false;*/
 
 
         EngineDraw(objects[i]);
@@ -164,6 +171,7 @@ void Draw()
 
     EngineDraw(&axis_model);
 
+    EngineSetRender( &render_window, 1);
 }
 
 void Clean()
@@ -178,4 +186,6 @@ void Clean()
     GameObjectDestroy(&axis_model);
 
     GUI_Destroy();
+
+    RenderTextureDestroy(&render_window);
 }

@@ -17,3 +17,5 @@ float yaw = 90.f;
 float pitch = 0;
 
 char editor_path[] = "/home/ilia/Projects/EngineEditor/";
+
+RenderTexture render_window;

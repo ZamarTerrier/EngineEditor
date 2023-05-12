@@ -4,6 +4,8 @@
 #include "engine_includes.h"
 #include "e_widget_window.h"
 
+#include <render_texture.h>
+
 extern EWidgetWindow transform_window;
 extern EWidgetWindow list_window;
 extern EWidgetWindow explorer_window;
@@ -21,5 +23,7 @@ extern char editor_path[];
 
 extern float yaw;
 extern float pitch;
+
+extern RenderTexture render_window;
 
 #endif // RESOURCE_H
