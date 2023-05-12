@@ -5,7 +5,7 @@
 #include <e_widget_range.h>
 #include <e_widget_entry.h>
 
-#include <camera.h>
+#include <e_camera.h>
 
 #include <e_math.h>
 
@@ -54,6 +54,8 @@ float size_z;
 
 EWidgetButton move_to_object;
 
+DrawParam transform_dParam;
+
 void TransformRollerMove(EWidget *widget, float *val, EWidgetEntry *entry)
 {
     char buff[20];
@@ -63,26 +65,35 @@ void TransformRollerMove(EWidget *widget, float *val, EWidgetEntry *entry)
 
 void MakeTransformBlock(EWidgetRange *range, EWidgetText *label, float *value, float x, float y)
 {
-    RangeWidgetInit( range, 100, 20, 0, 360, &transform_window );
+
+    DrawParam dParam;
+    memset(&dParam, 0, sizeof(DrawParam));
+    dParam.render = &render_window;
+
+    RangeWidgetInit( range, 100, 20, 0, 360, &dParam, &transform_window );
     RangeWidgetSetValueDestin( range, value );
     Transform2DSetPosition( range, x, y );
-    TextWidgetInit( label, 9, NULL, &transform_window );
+    TextWidgetInitDefault(label, 9, &dParam, &transform_window );
     Transform2DSetPosition( label, x + 220, y + 30 );
 }
 
 void MakeEntryBlock(EWidgetEntry *entry, EWidgetText *label, EWidgetRoller *roller, float *source, char *text_label, float x, float y)
 {
-    EntryWidgetInit(entry, 9, &transform_window);
+    DrawParam dParam;
+    memset(&dParam, 0, sizeof(DrawParam));
+    dParam.render = &render_window;
+
+    EntryWidgetInit(entry, 9, &dParam, &transform_window);
     Transform2DSetScale(entry, 60, 20);
     Transform2DSetPosition(entry, x, y);
 
-    RollerWidgetInit(roller, &transform_window);
+    RollerWidgetInit(roller, &dParam, &transform_window);
     RollerWidgetSetSource(roller, source);
     Transform2DSetPosition(roller, x + 100, y);
     Transform2DSetScale(roller, 20, 20);
     WidgetConnect(roller, ENGINE_WIDGET_TRIGGER_ROLLER_MOVE, TransformRollerMove, entry);
 
-    TextWidgetInit( label, 9, NULL, &transform_window );
+    TextWidgetInitDefault(label, 9, &dParam, &transform_window );
     Transform2DSetPosition( label, x - 40, y + 30);
     TextWidgetSetText( label, text_label);
 }
@@ -97,10 +108,10 @@ void MoveToTarget(EWidget *widget, void *entry, void *args)
     target.y +=10;
     target.z -=10;
 
-    setViewPos(target.x, target.y, target.z);
-    vec3 dir = v3_sub(getViewPos(), Transform3DGetPosition(objects[curr_object]));
+    Camera3DSetPosition(target.x, target.y, target.z);
+    vec3 dir = v3_sub(Camera3DGetPosition(), Transform3DGetPosition(objects[curr_object]));
     dir = v3_norm(dir);
-    setViewRotation(dir.x * 180, dir.y * 180, dir.z * 180);
+    Camera3DSetRotation(dir.x * 180, dir.y * 180, dir.z * 180);
     yaw = (dir.y * 180) + 120;
     pitch = (dir.z * 180) + 70;
 }
@@ -113,31 +124,34 @@ void TransformWindowResize()
 
 void TransformWindowInit()
 {
+    memset(&transform_dParam, 0, sizeof(DrawParam));
+    transform_dParam.render = &render_window;
+
     vec2 size = {130, 450};
     vec2 pos = {(WIDTH * 2) - 260, 60};
-    WindowWidgetInit(&transform_window, "Объект", size, NULL, pos);
+    WindowWidgetInit(&transform_window, "Объект", size, &transform_dParam, pos);
     transform_window.resizeble = false;
 
-    ButtonWidgetInit(&move_to_object, "Переместиться", &transform_window);
+    ButtonWidgetInit(&move_to_object, "Переместиться", &transform_dParam, &transform_window);
     Transform2DSetScale(&move_to_object, 130, 30);
     Transform2DSetPosition(&move_to_object, 0, 0);
     WidgetConnect(&move_to_object, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, MoveToTarget, NULL);
 
-    TextWidgetInit(&label_rotation, 9, NULL, &transform_window);
+    TextWidgetInitDefault(&label_rotation, 9, &transform_dParam, &transform_window);
     TextWidgetSetText(&label_rotation, "Поворот");
     Transform2DSetPosition(&label_rotation, 0, 90);
     MakeTransformBlock(&rotationX, &label_rotation_value_x, &rot_x, 0, 100);
     MakeTransformBlock(&rotationY, &label_rotation_value_y, &rot_y, 0, 140);
     MakeTransformBlock(&rotationZ, &label_rotation_value_z, &rot_z, 0, 180);
 
-    TextWidgetInit(&label_position, 9, NULL, &transform_window);
+    TextWidgetInitDefault(&label_position, 9, &transform_dParam, &transform_window);
     TextWidgetSetText(&label_position, "Позиция");
     Transform2DSetPosition(&label_position, 0, 270);
     MakeEntryBlock(&entry_position_value_x, &label_position_value_x_label, &roller_position_x, &pos_x, "X :", 50, 290);
     MakeEntryBlock(&entry_position_value_y, &label_position_value_y_label, &roller_position_y, &pos_y, "Y :", 50, 350);
     MakeEntryBlock(&entry_position_value_z, &label_position_value_z_label, &roller_position_z, &pos_z, "Z :", 50, 410);
 
-    TextWidgetInit(&label_size, 9, NULL, &transform_window);
+    TextWidgetInitDefault(&label_size, 9, &transform_dParam, &transform_window);
     TextWidgetSetText(&label_size, "Размер");
     Transform2DSetPosition(&label_size, 0, 500);
     MakeEntryBlock(&entry_size_value_x, &label_size_value_x_label, &roller_size_x, &size_x, "X :", 50, 520);

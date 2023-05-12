@@ -19,6 +19,8 @@
 EWidgetScroll list_scroll;
 EWidgetList list_objects;
 
+DrawParam list_dParam;
+
 int ListWindowSomeExplober(EWidget* widget, float *valu, EWidgetList *list)
 {
     float size = list->size * list->size_y * 2 - 510;
@@ -77,27 +79,31 @@ void ListWindowRemoveItem(EWidget *widget, void *entry, void *arg)
 
 void ListWindowInit()
 {
+    memset(&list_dParam, 0, sizeof(DrawParam));
+
+    list_dParam.render = &render_window;
+
     char img_path[256];
 
     vec2 size = { 150, 300};
     vec2 position = {WIDTH * 2 - 300, 970};
-    WindowWidgetInit(&list_window, "Список", size, NULL, position);
+    WindowWidgetInit(&list_window, "Список", size, &list_dParam, position);
     list_window.resizeble = false;
 
     EWidgetButton *del_button = calloc(1, sizeof(EWidgetButton));
-    ButtonWidgetInit(del_button, "", &list_window);
+    ButtonWidgetInit(del_button, "", &list_dParam, &list_window);
     ButtonWidgetSetColor(del_button, 0.4f, 0.4f, 0.4f);
     ToolsAddStrings(img_path, 256, editor_path, "textures/trash.png");
-    ButtonWidgetSetImage(del_button, img_path);
+    ButtonWidgetSetImage(del_button, img_path, &list_dParam);
     del_button->widget.widget_flags |= ENGINE_FLAG_WIDGET_ALLOCATED;
     Transform2DSetScale(del_button, 30, 30);
     WidgetConnect(del_button, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, ListWindowRemoveItem, NULL);
 
-    ScrollWidgetInit(&list_scroll, size.x, size.y - 45, NULL, &list_window);
+    ScrollWidgetInit(&list_scroll, size.x, size.y - 45, &list_dParam, &list_window);
     Transform2DSetPosition(&list_scroll, 0, 60);
     WidgetConnect(&list_scroll, ENGINE_WIDGET_TRIGGER_SCROLL_CHANGE, ListWindowSomeExplober, &list_objects);
 
-    ListWidgetInit(&list_objects, size.x - 20, 20, &list_scroll);
+    ListWidgetInit(&list_objects, size.x - 20, 20, &list_dParam, &list_scroll);
     WidgetConnect(&list_objects, ENGINE_WIDGET_TRIGGER_LIST_PRESS_ITEM, ListWindowClickList, NULL);
 
     ScrollWidgetUpdate(&list_scroll, &list_objects);
@@ -111,7 +117,7 @@ void ListWindowUpdate(float delta_time)
     {
         char buff[10];
         sprintf(buff, "%i",list_objects.size + 1);
-        ListWidgetAddItem(&list_objects, buff);
+        ListWidgetAddItem(&list_objects, buff, &list_dParam);
 
         ScrollWidgetUpdate(&list_scroll, &list_objects);
     }

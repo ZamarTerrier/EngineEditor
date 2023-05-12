@@ -18,12 +18,17 @@ void ConsoleInputText(const char* text)
 
 void ConsoleInit()
 {
+    DrawParam dParam;
+    memset(&dParam, 0, sizeof(DrawParam));
+
+    dParam.render = &render_window;
+
     vec2 size = { 400, 200};
     vec2 position = {0, 1100};
-    WindowWidgetInit(&console_window, "Консоль", size, NULL, position);
+    WindowWidgetInit(&console_window, "Консоль", size, &dParam, position);
     console_window.resizeble = false;
 
-    EntryAreaWidgetInit(&area, 9, &console_window);
+    EntryAreaWidgetInit(&area, 9, &dParam, &console_window);
     Transform2DSetScale(&area, size.x, size.y - 10);
     area.entry.height = size.y - 10 * 1.5f;
     area.entry.width = size.x * 1.5f;
